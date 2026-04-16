@@ -1,0 +1,14 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/StellarImperiums.Api/StellarImperiums.Api.csproj" />
+    <Project Path="src/StellarImperiums.Application/StellarImperiums.Application.csproj" />
+    <Project Path="src/StellarImperiums.Domain/StellarImperiums.Domain.csproj" />
+    <Project Path="src/StellarImperiums.Infrastructure/StellarImperiums.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/StellarImperiums.Domain.Tests/StellarImperiums.Domain.Tests.csproj" />
+    <Project Path="tests/StellarImperiums.Application.Tests/StellarImperiums.Application.Tests.csproj" />
+    <Project Path="tests/StellarImperiums.Infrastructure.Tests/StellarImperiums.Infrastructure.Tests.csproj" />
+    <Project Path="tests/StellarImperiums.Api.IntegrationTests/StellarImperiums.Api.IntegrationTests.csproj" />
+  </Folder>
+</Solution>
