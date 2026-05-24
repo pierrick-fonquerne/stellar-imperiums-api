@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using StellarImperiums.Domain.Utilisateurs;
 
 namespace StellarImperiums.Infrastructure.Persistence;
 
@@ -11,6 +12,11 @@ namespace StellarImperiums.Infrastructure.Persistence;
 /// </remarks>
 public class StellarDbContext(DbContextOptions<StellarDbContext> options) : DbContext(options)
 {
+    /// <summary>
+    /// Gets the queryable set of registered users.
+    /// </summary>
+    public DbSet<Utilisateur> Utilisateurs => Set<Utilisateur>();
+
     /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
