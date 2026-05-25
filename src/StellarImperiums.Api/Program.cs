@@ -1,21 +1,30 @@
+using FluentValidation;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using Microsoft.EntityFrameworkCore;
-using StellarImperiums.Infrastructure.Persistence;
+using StellarImperiums.Api.Middleware;
+using StellarImperiums.Application.Users.Commands;
+using StellarImperiums.Infrastructure;
 using Wolverine;
+using Wolverine.FluentValidation;
 
 var builder = WebApplication.CreateBuilder(args);
-
-builder.Host.UseWolverine();
-
-builder.Services.AddOpenApi();
-builder.Services.AddControllers();
 
 var postgresConnectionString = builder.Configuration.GetConnectionString("Postgres")
     ?? throw new InvalidOperationException(
         "ConnectionStrings:Postgres is not configured. Set it via user-secrets, environment variable, or appsettings.");
 
-builder.Services.AddDbContext<StellarDbContext>(options =>
-    options.UseNpgsql(postgresConnectionString));
+builder.Services.AddInfrastructure(postgresConnectionString);
+
+builder.Services.AddValidatorsFromAssemblyContaining<RegisterUserValidator>();
+
+builder.Host.UseWolverine(opts =>
+{
+    opts.Discovery.IncludeAssembly(typeof(RegisterUserValidator).Assembly);
+    opts.ServiceLocationPolicy = JasperFx.CodeGeneration.Model.ServiceLocationPolicy.AlwaysAllowed;
+    opts.UseFluentValidation();
+});
+
+builder.Services.AddOpenApi();
+builder.Services.AddControllers();
 
 builder.Services.AddHealthChecks()
     .AddNpgSql(postgresConnectionString, name: "postgres", tags: ["db"]);
@@ -28,6 +37,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseMiddleware<DomainExceptionMiddleware>();
+
 app.MapControllers();
 
 app.MapHealthChecks("/health", new HealthCheckOptions
@@ -52,3 +64,8 @@ app.MapHealthChecks("/health", new HealthCheckOptions
 });
 
 app.Run();
+
+/// <summary>
+/// Exposed for integration tests via <see cref="Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory{TEntryPoint}"/>.
+/// </summary>
+public partial class Program;
