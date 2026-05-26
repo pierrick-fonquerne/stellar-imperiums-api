@@ -1,8 +1,8 @@
 using StellarImperiums.Application.Abstractions;
 using StellarImperiums.Application.Users.Exceptions;
 using DomainEmail = StellarImperiums.Domain.Users.Email;
-using DomainUsername = StellarImperiums.Domain.Users.Username;
 using DomainUser = StellarImperiums.Domain.Users.User;
+using DomainUsername = StellarImperiums.Domain.Users.Username;
 
 namespace StellarImperiums.Application.Users.Commands;
 
