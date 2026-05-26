@@ -9,10 +9,14 @@
 
   <ItemGroup>
     <PackageReference Include="AspNetCore.HealthChecks.NpgSql" Version="9.0.0" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.5" />
-    <PackageReference Include="WolverineFx" Version="6.0.0" />
-    <PackageReference Include="WolverineFx.EntityFrameworkCore" Version="6.0.0" />
-    <PackageReference Include="WolverineFx.RuntimeCompilation" Version="6.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.8" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.1" />
+    <PackageReference Include="WolverineFx" Version="6.0.1" />
+    <PackageReference Include="WolverineFx.EntityFrameworkCore" Version="6.0.1" />
+    <PackageReference Include="WolverineFx.FluentValidation" Version="6.0.1" />
+    <PackageReference Include="WolverineFx.RuntimeCompilation" Version="6.0.1" />
   </ItemGroup>
 
   <ItemGroup>
