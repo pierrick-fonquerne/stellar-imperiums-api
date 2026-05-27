@@ -1,4 +1,3 @@
-using FluentValidation;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using StellarImperiums.Api.Middleware;
 using StellarImperiums.Application.Users.Commands;
@@ -13,8 +12,6 @@ var postgresConnectionString = builder.Configuration.GetConnectionString("Postgr
         "ConnectionStrings:Postgres is not configured. Set it via user-secrets, environment variable, or appsettings.");
 
 builder.Services.AddInfrastructure(postgresConnectionString);
-
-builder.Services.AddValidatorsFromAssemblyContaining<RegisterUserValidator>();
 
 builder.Host.UseWolverine(opts =>
 {
