@@ -8,6 +8,7 @@ public class RefreshTokenTests
 {
     private const string Hash = "A1B2C3D4E5F60718293A4B5C6D7E8F90A1B2C3D4E5F60718293A4B5C6D7E8F90";
     private const string NewHash = "00112233445566778899AABBCCDDEEFF00112233445566778899AABBCCDDEEFF";
+    private const string ThirdHash = "FFEEDDCCBBAA99887766554433221100FFEEDDCCBBAA99887766554433221100";
 
     private static readonly DateTimeOffset Now = new(2026, 6, 6, 12, 0, 0, TimeSpan.Zero);
     private static readonly Guid Family = Guid.Parse("0193b6a0-0000-7000-8000-000000000001");
@@ -121,7 +122,7 @@ public class RefreshTokenTests
         token.Rotate(NewHash, Now.AddDays(31), Now.AddDays(1));
 
         Should.Throw<RefreshTokenReuseException>(
-            () => token.Rotate(NewHash, Now.AddDays(31), Now.AddDays(2)));
+            () => token.Rotate(ThirdHash, Now.AddDays(31), Now.AddDays(2)));
     }
 
     [Fact]

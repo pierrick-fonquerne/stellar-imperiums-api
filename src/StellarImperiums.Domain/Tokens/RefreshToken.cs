@@ -133,6 +133,7 @@ public sealed class RefreshToken : Entity
     /// <exception cref="RefreshTokenRevokedException">Thrown when the token is revoked.</exception>
     /// <exception cref="RefreshTokenReuseException">Thrown when the token was already rotated.</exception>
     /// <exception cref="RefreshTokenExpiredException">Thrown when the token is expired.</exception>
+    /// <exception cref="InvalidRefreshTokenException">Thrown when the successor hash or expiry is invalid.</exception>
     public RefreshToken Rotate(string newTokenHash, DateTimeOffset newExpiresAt, DateTimeOffset now)
     {
         if (IsRevoked)
