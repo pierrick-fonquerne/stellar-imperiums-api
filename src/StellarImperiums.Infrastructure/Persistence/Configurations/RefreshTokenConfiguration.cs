@@ -11,9 +11,8 @@ namespace StellarImperiums.Infrastructure.Persistence.Configurations;
 /// <remarks>
 /// Follows the French snake_case naming convention of the shared SQL schema. The token hash
 /// is a 64-character uppercase hexadecimal SHA-256 digest with a unique index used as the
-/// primary lookup path. The PostgreSQL <c>xmin</c> system column is mapped as a shadow
-/// property of type <c>xid</c> and declared as the optimistic concurrency token so that two
-/// concurrent rotations of the same token cannot both commit.
+/// primary lookup path. The PostgreSQL <c>xmin</c> system column is used as the optimistic
+/// concurrency token so that two concurrent rotations of the same token cannot both commit.
 /// </remarks>
 public sealed class RefreshTokenConfiguration : IEntityTypeConfiguration<RefreshToken>
 {

@@ -12,7 +12,7 @@ using StellarImperiums.Infrastructure.Persistence;
 namespace StellarImperiums.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(StellarDbContext))]
-    [Migration("20260606141653_AddRefreshTokens")]
+    [Migration("20260606142134_AddRefreshTokens")]
     partial class AddRefreshTokens
     {
         /// <inheritdoc />
@@ -65,7 +65,7 @@ namespace StellarImperiums.Infrastructure.Persistence.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("id_utilisateur");
 
-                    b.Property<uint>("xmin")
+                    b.Property<uint>("Version")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("xid")

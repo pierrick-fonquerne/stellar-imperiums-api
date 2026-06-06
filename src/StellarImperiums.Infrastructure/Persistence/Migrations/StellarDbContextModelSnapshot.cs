@@ -62,7 +62,7 @@ namespace StellarImperiums.Infrastructure.Persistence.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("id_utilisateur");
 
-                    b.Property<uint>("xmin")
+                    b.Property<uint>("Version")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("xid")
