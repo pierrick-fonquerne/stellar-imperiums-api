@@ -1,10 +1,10 @@
+using System.Text;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using Shouldly;
 using StellarImperiums.Domain.Users;
 using StellarImperiums.Infrastructure.Security;
-using System.Text;
 
 namespace StellarImperiums.Infrastructure.Tests.Security;
 
