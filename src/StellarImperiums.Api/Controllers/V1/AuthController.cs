@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using StellarImperiums.Api.Contracts.Auth;
 using StellarImperiums.Application.Tokens.Commands;
+using StellarImperiums.Application.Tokens.Exceptions;
 using StellarImperiums.Application.Users.Commands;
 using Wolverine;
 
@@ -106,10 +107,7 @@ public sealed class AuthController(IMessageBus messageBus) : ControllerBase
         if (!Request.Cookies.TryGetValue(RefreshTokenCookieName, out var refreshTokenValue)
             || string.IsNullOrEmpty(refreshTokenValue))
         {
-            return Problem(
-                title: "Invalid refresh token",
-                detail: "No refresh token cookie was provided.",
-                statusCode: StatusCodes.Status401Unauthorized);
+            throw new RefreshTokenRejectedException();
         }
 
         var result = await messageBus
@@ -124,6 +122,10 @@ public sealed class AuthController(IMessageBus messageBus) : ControllerBase
     /// <summary>
     /// Terminates the session by revoking the refresh token family and clearing the cookie.
     /// </summary>
+    /// <remarks>
+    /// The refresh token family is revoked before the cookie is cleared; if revocation fails
+    /// the cookie survives so the client can retry the logout.
+    /// </remarks>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>No content; logout is idempotent.</returns>
     /// <response code="204">The session is terminated (also returned when no cookie was sent).</response>
