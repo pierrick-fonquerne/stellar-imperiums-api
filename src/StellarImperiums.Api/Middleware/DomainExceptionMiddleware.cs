@@ -40,12 +40,12 @@ public sealed class DomainExceptionMiddleware(RequestDelegate next, ILogger<Doma
         catch (InvalidCredentialsException ex)
         {
             logger.LogInformation("Login failure for {Path}.", context.Request.Path);
-            await WriteProblemAsync(context, StatusCodes.Status401Unauthorized, "Invalid credentials", ex.Message).ConfigureAwait(false);
+            await WriteProblemAsync(context, StatusCodes.Status401Unauthorized, "Invalid credentials", ex.Message, "invalid_credentials").ConfigureAwait(false);
         }
         catch (RefreshTokenRejectedException ex)
         {
             logger.LogInformation("Refresh token rejected for {Path}.", context.Request.Path);
-            await WriteProblemAsync(context, StatusCodes.Status401Unauthorized, "Invalid refresh token", ex.Message).ConfigureAwait(false);
+            await WriteProblemAsync(context, StatusCodes.Status401Unauthorized, "Invalid refresh token", ex.Message, "invalid_refresh_token").ConfigureAwait(false);
         }
         catch (UserNotFoundException ex)
         {
@@ -55,7 +55,7 @@ public sealed class DomainExceptionMiddleware(RequestDelegate next, ILogger<Doma
         catch (UserSuspendedException ex)
         {
             logger.LogInformation("Suspended account rejected for {Path}.", context.Request.Path);
-            await WriteProblemAsync(context, StatusCodes.Status403Forbidden, "Account suspended", ex.Message).ConfigureAwait(false);
+            await WriteProblemAsync(context, StatusCodes.Status403Forbidden, "Account suspended", ex.Message, "account_suspended").ConfigureAwait(false);
         }
         catch (DbUpdateConcurrencyException ex)
         {
@@ -88,7 +88,7 @@ public sealed class DomainExceptionMiddleware(RequestDelegate next, ILogger<Doma
         return context.Response.WriteAsJsonAsync(problem);
     }
 
-    private static Task WriteProblemAsync(HttpContext context, int statusCode, string title, string detail)
+    private static Task WriteProblemAsync(HttpContext context, int statusCode, string title, string detail, string? code = null)
     {
         var problem = new ProblemDetails
         {
@@ -98,6 +98,11 @@ public sealed class DomainExceptionMiddleware(RequestDelegate next, ILogger<Doma
             Detail = detail,
             Instance = context.Request.Path
         };
+
+        if (code is not null)
+        {
+            problem.Extensions["code"] = code;
+        }
 
         context.Response.StatusCode = statusCode;
         context.Response.ContentType = "application/problem+json";
