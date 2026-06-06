@@ -1,5 +1,7 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using StellarImperiums.Application.Tokens.Exceptions;
 using StellarImperiums.Application.Users.Exceptions;
 using StellarImperiums.Domain.Common;
 
@@ -35,6 +37,31 @@ public sealed class DomainExceptionMiddleware(RequestDelegate next, ILogger<Doma
             logger.LogInformation("Email collision: {Email}.", ex.Email);
             await WriteProblemAsync(context, StatusCodes.Status409Conflict, "Email already taken", ex.Message).ConfigureAwait(false);
         }
+        catch (InvalidCredentialsException ex)
+        {
+            logger.LogInformation("Login failure for {Path}.", context.Request.Path);
+            await WriteProblemAsync(context, StatusCodes.Status401Unauthorized, "Invalid credentials", ex.Message, "invalid_credentials").ConfigureAwait(false);
+        }
+        catch (RefreshTokenRejectedException ex)
+        {
+            logger.LogInformation("Refresh token rejected for {Path}.", context.Request.Path);
+            await WriteProblemAsync(context, StatusCodes.Status401Unauthorized, "Invalid refresh token", ex.Message, "invalid_refresh_token").ConfigureAwait(false);
+        }
+        catch (UserNotFoundException ex)
+        {
+            logger.LogInformation("Authenticated user no longer exists for {Path}.", context.Request.Path);
+            await WriteProblemAsync(context, StatusCodes.Status401Unauthorized, "Unauthorized", ex.Message).ConfigureAwait(false);
+        }
+        catch (UserSuspendedException ex)
+        {
+            logger.LogInformation("Suspended account rejected for {Path}.", context.Request.Path);
+            await WriteProblemAsync(context, StatusCodes.Status403Forbidden, "Account suspended", ex.Message, "account_suspended").ConfigureAwait(false);
+        }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            logger.LogWarning(ex, "Concurrency conflict for {Path}.", context.Request.Path);
+            await WriteProblemAsync(context, StatusCodes.Status409Conflict, "Concurrency conflict", "The resource was modified concurrently. Retry the operation.").ConfigureAwait(false);
+        }
         catch (DomainException ex)
         {
             logger.LogInformation(ex, "Domain invariant violated for {Path}.", context.Request.Path);
@@ -61,7 +88,7 @@ public sealed class DomainExceptionMiddleware(RequestDelegate next, ILogger<Doma
         return context.Response.WriteAsJsonAsync(problem);
     }
 
-    private static Task WriteProblemAsync(HttpContext context, int statusCode, string title, string detail)
+    private static Task WriteProblemAsync(HttpContext context, int statusCode, string title, string detail, string? code = null)
     {
         var problem = new ProblemDetails
         {
@@ -71,6 +98,11 @@ public sealed class DomainExceptionMiddleware(RequestDelegate next, ILogger<Doma
             Detail = detail,
             Instance = context.Request.Path
         };
+
+        if (code is not null)
+        {
+            problem.Extensions["code"] = code;
+        }
 
         context.Response.StatusCode = statusCode;
         context.Response.ContentType = "application/problem+json";

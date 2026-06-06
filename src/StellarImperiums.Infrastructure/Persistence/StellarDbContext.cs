@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using StellarImperiums.Domain.Tokens;
 using StellarImperiums.Domain.Users;
 
 namespace StellarImperiums.Infrastructure.Persistence;
@@ -16,6 +17,11 @@ public class StellarDbContext(DbContextOptions<StellarDbContext> options) : DbCo
     /// Gets the queryable set of registered users.
     /// </summary>
     public DbSet<User> Users => Set<User>();
+
+    /// <summary>
+    /// Gets the queryable set of refresh tokens.
+    /// </summary>
+    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
     /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder modelBuilder)

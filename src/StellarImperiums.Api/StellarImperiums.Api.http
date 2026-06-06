@@ -4,3 +4,22 @@ GET {{StellarImperiums.Api_HostAddress}}/api/health
 Accept: application/json
 
 ###
+
+### Login
+POST {{StellarImperiums.Api_HostAddress}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "vega@stellar.io",
+  "password": "P@ssword12345!"
+}
+
+### Refresh (le cookie refresh_token doit être présent)
+POST {{StellarImperiums.Api_HostAddress}}/api/v1/auth/refresh
+
+### Me
+GET {{StellarImperiums.Api_HostAddress}}/api/v1/users/me
+Authorization: Bearer {{accessToken}}
+
+### Logout
+POST {{StellarImperiums.Api_HostAddress}}/api/v1/auth/logout
