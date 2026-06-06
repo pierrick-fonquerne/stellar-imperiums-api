@@ -41,6 +41,7 @@ public class JwtTokenServiceTests
         token.TryGetClaim(JwtRegisteredClaimNames.Jti, out _).ShouldBeTrue();
         token.Issuer.ShouldBe("StellarImperiums.Tests");
         token.Audiences.ShouldContain("StellarImperiums.Tests");
+        token.Alg.ShouldBe("HS256");
     }
 
     [Fact]
@@ -74,6 +75,7 @@ public class JwtTokenServiceTests
                 ValidIssuer = "StellarImperiums.Tests",
                 ValidAudience = "StellarImperiums.Tests",
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(SigningKey)),
+                ValidAlgorithms = ["HS256"],
                 ValidateLifetime = true
             });
 
