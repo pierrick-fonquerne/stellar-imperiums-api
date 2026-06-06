@@ -1,5 +1,7 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using StellarImperiums.Application.Tokens.Exceptions;
 using StellarImperiums.Application.Users.Exceptions;
 using StellarImperiums.Domain.Common;
 
@@ -34,6 +36,31 @@ public sealed class DomainExceptionMiddleware(RequestDelegate next, ILogger<Doma
         {
             logger.LogInformation("Email collision: {Email}.", ex.Email);
             await WriteProblemAsync(context, StatusCodes.Status409Conflict, "Email already taken", ex.Message).ConfigureAwait(false);
+        }
+        catch (InvalidCredentialsException ex)
+        {
+            logger.LogInformation("Login failure for {Path}.", context.Request.Path);
+            await WriteProblemAsync(context, StatusCodes.Status401Unauthorized, "Invalid credentials", ex.Message).ConfigureAwait(false);
+        }
+        catch (RefreshTokenRejectedException ex)
+        {
+            logger.LogInformation("Refresh token rejected for {Path}.", context.Request.Path);
+            await WriteProblemAsync(context, StatusCodes.Status401Unauthorized, "Invalid refresh token", ex.Message).ConfigureAwait(false);
+        }
+        catch (UserNotFoundException ex)
+        {
+            logger.LogInformation("Authenticated user no longer exists for {Path}.", context.Request.Path);
+            await WriteProblemAsync(context, StatusCodes.Status401Unauthorized, "Unauthorized", ex.Message).ConfigureAwait(false);
+        }
+        catch (UserSuspendedException ex)
+        {
+            logger.LogInformation("Suspended account rejected for {Path}.", context.Request.Path);
+            await WriteProblemAsync(context, StatusCodes.Status403Forbidden, "Account suspended", ex.Message).ConfigureAwait(false);
+        }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            logger.LogWarning(ex, "Concurrency conflict for {Path}.", context.Request.Path);
+            await WriteProblemAsync(context, StatusCodes.Status409Conflict, "Concurrency conflict", "The resource was modified concurrently. Retry the operation.").ConfigureAwait(false);
         }
         catch (DomainException ex)
         {
