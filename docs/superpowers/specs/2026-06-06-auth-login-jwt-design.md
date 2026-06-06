@@ -44,17 +44,22 @@ révocable, déconnexion effective, et premier endpoint protégé.
 ### 3.2 Application
 
 - Abstractions :
-  - `ITokenService` : `CreateAccessToken(User)` → `(token, expiresIn)` ;
-    `GenerateRefreshToken()` → `(valeurOpaque, hash)`.
+  - `ITokenService` : `CreateAccessToken(User)` → `(token, expiresInSeconds)` ;
+    `GenerateRefreshToken()` → `(valeurOpaque, hash, expiresAt)` ;
+    `HashRefreshToken(valeur)` → hash SHA-256 (lookup des cookies entrants).
   - `IRefreshTokenRepository` : `GetByHashAsync`, `AddAsync`,
     `RevokeFamilyAsync(familyId)`, `SaveChangesAsync`.
-  - `IUserRepository` (extension) : `GetByEmailAsync(Email)`, `GetByIdAsync(Guid)`.
+  - `IUserRepository` (extension) : `GetByEmailAsync(Email)`, `GetByIdAsync(int)`
+    (les identifiants utilisateur sont des `int` identity, conformément à `Entity.Id`).
 - Commands Wolverine (pattern `RegisterUser` existant) :
   - `LoginUserCommand(Email, Password)` + handler + validator FluentValidation.
   - `RefreshTokenCommand(RefreshTokenValue)` + handler.
   - `LogoutCommand(RefreshTokenValue)` + handler.
+- Query : `GetCurrentUserQuery(UserId)` + handler pour `GET /users/me`.
 - Exceptions : `InvalidCredentialsException` (générique : ne révèle jamais si
-  l'email ou le mot de passe est en cause), `UserSuspendedException`.
+  l'email ou le mot de passe est en cause), `UserSuspendedException`,
+  `RefreshTokenRejectedException` (tout refresh rejeté → 401 générique),
+  `UserNotFoundException`.
 
 ### 3.3 Infrastructure
 
@@ -64,9 +69,10 @@ révocable, déconnexion effective, et premier endpoint protégé.
   `AccessTokenLifetimeMinutes`, `RefreshTokenLifetimeDays`, `SigningKey`.
   `ValidateOnStart()` : démarrage refusé si clé < 32 octets. Clé fournie par
   user-secrets (dev) ou variable d'environnement (prod), jamais dans appsettings.
-- `EfRefreshTokenRepository`, `RefreshTokenConfiguration` (index unique sur
-  `TokenHash`, index sur `FamilyId`, FK `UserId` cascade), migration
-  `AddRefreshTokens`.
+- `EfRefreshTokenRepository`, `RefreshTokenConfiguration` : table
+  `jeton_rafraichissement` (convention française snake_case du schéma partagé),
+  index unique sur `TokenHash`, index sur `FamilyId`, FK `UserId` cascade ;
+  migration `AddRefreshTokens`.
 
 ### 3.4 Api
 
@@ -80,7 +86,9 @@ révocable, déconnexion effective, et premier endpoint protégé.
   `MeResponse(id, username, email, role, registrationDate, lastLoginAt)`.
 - `Program.cs` : `AddAuthentication().AddJwtBearer()` (ClockSkew 30 s),
   `AddAuthorization()`, `AddRateLimiter` (fixed window 5/min/IP, policy
-  `auth-login`), `UseAuthentication()` avant `UseAuthorization()`.
+  `auth-login`, limites bindées depuis la section `RateLimiting:AuthLogin` pour
+  être ajustables en tests d'intégration), `UseAuthentication()` avant
+  `UseAuthorization()`.
 - Contracts : `LoginRequest`, `LoginResponse`, `RefreshResponse`, `MeResponse`.
 
 ## 4. Flux et codes d'erreur
@@ -124,8 +132,8 @@ Cookie absent : `204` (idempotent).
 
 ### Claims (minimisation)
 
-`sub` (Guid user), `unique_name` (username), `role`, `jti`, `iss`, `aud`,
-`iat`, `exp`. **Pas d'email** : un JWT est signé, pas chiffré — toute donnée
+`sub` (id utilisateur, int identity), `unique_name` (username), `role`, `jti`,
+`iss`, `aud`, `iat`, `exp`. **Pas d'email** : un JWT est signé, pas chiffré — toute donnée
 embarquée est lisible. `/users/me` fournit l'email de façon contrôlée.
 
 ### Cookie
@@ -180,3 +188,5 @@ Implémentation en TDD : chaque test écrit avant le code correspondant.
 - Endpoint de changement de mot de passe.
 - Pages frontend (login UI consommera ces endpoints au milestone suivant).
 - Purge planifiée des refresh tokens expirés en DB (chore ultérieure).
+- Report de la table `jeton_rafraichissement` dans le schéma SQL de référence
+  de `stellar-imperiums-shared` (PR dédiée dans ce repo).
