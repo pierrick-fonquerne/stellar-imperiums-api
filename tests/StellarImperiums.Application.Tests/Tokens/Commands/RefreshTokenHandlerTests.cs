@@ -92,6 +92,7 @@ public class RefreshTokenHandlerTests
         await _refreshTokens.Received(1).RevokeFamilyAsync(
             Family, Arg.Any<DateTimeOffset>(), Arg.Any<CancellationToken>());
         await _refreshTokens.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
+        await _refreshTokens.DidNotReceive().AddAsync(Arg.Any<RefreshToken>(), Arg.Any<CancellationToken>());
     }
 
     [Fact]
@@ -106,6 +107,7 @@ public class RefreshTokenHandlerTests
 
         await _refreshTokens.DidNotReceive().RevokeFamilyAsync(
             Arg.Any<Guid>(), Arg.Any<DateTimeOffset>(), Arg.Any<CancellationToken>());
+        await _refreshTokens.DidNotReceive().AddAsync(Arg.Any<RefreshToken>(), Arg.Any<CancellationToken>());
     }
 
     [Fact]
@@ -135,6 +137,7 @@ public class RefreshTokenHandlerTests
 
         await _refreshTokens.Received(1).RevokeFamilyAsync(
             Family, Arg.Any<DateTimeOffset>(), Arg.Any<CancellationToken>());
+        await _refreshTokens.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
     }
 
     [Fact]
