@@ -11,7 +11,7 @@ var postgresConnectionString = builder.Configuration.GetConnectionString("Postgr
     ?? throw new InvalidOperationException(
         "ConnectionStrings:Postgres is not configured. Set it via user-secrets, environment variable, or appsettings.");
 
-builder.Services.AddInfrastructure(postgresConnectionString);
+builder.Services.AddInfrastructure(builder.Configuration);
 
 builder.Host.UseWolverine(opts =>
 {
