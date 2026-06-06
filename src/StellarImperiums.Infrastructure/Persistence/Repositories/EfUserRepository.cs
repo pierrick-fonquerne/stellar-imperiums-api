@@ -38,6 +38,18 @@ public sealed class EfUserRepository(StellarDbContext dbContext) : IUserReposito
     }
 
     /// <inheritdoc />
+    public Task<User?> GetByEmailAsync(Email email, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(email);
+        return dbContext.Users
+            .FirstOrDefaultAsync(u => u.Email == email, cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public Task<User?> GetByIdAsync(int id, CancellationToken cancellationToken = default) =>
+        dbContext.Users.FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
+
+    /// <inheritdoc />
     public Task SaveChangesAsync(CancellationToken cancellationToken = default) =>
         dbContext.SaveChangesAsync(cancellationToken);
 }

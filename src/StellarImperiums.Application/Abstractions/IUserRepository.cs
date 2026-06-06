@@ -33,6 +33,22 @@ public interface IUserRepository
     Task<bool> EmailExistsAsync(Email email, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Finds a user by email address.
+    /// </summary>
+    /// <param name="email">The email address to look up.</param>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>The tracked user, or <c>null</c> when no user matches.</returns>
+    Task<User?> GetByEmailAsync(Email email, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Finds a user by identifier.
+    /// </summary>
+    /// <param name="id">The user identifier.</param>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>The tracked user, or <c>null</c> when no user matches.</returns>
+    Task<User?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Persists pending changes to the underlying store.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
