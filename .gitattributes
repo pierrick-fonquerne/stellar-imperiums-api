@@ -1,0 +1,37 @@
+# Normalisation des fins de ligne.
+# Git stocke en LF et restitue en LF dans l'arbre de travail, pour eviter
+# le bruit CRLF/LF introduit par les outils multiplateformes (formatters,
+# generateurs EF) sous Windows.
+* text=auto eol=lf
+
+# Sources et configuration : LF impose.
+*.cs           text eol=lf
+*.csproj       text eol=lf
+*.sln          text eol=lf
+*.slnx         text eol=lf
+*.props        text eol=lf
+*.targets      text eol=lf
+*.json         text eol=lf
+*.yml          text eol=lf
+*.yaml         text eol=lf
+*.md           text eol=lf
+*.sql          text eol=lf
+*.sh           text eol=lf
+.editorconfig  text eol=lf
+.gitattributes text eol=lf
+.gitignore     text eol=lf
+
+# Scripts specifiques a Windows : CRLF obligatoire.
+*.cmd text eol=crlf
+*.bat text eol=crlf
+
+# Fichiers binaires : aucune conversion.
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.ico  binary
+*.dll  binary
+*.exe  binary
+*.snk  binary
+*.pfx  binary
