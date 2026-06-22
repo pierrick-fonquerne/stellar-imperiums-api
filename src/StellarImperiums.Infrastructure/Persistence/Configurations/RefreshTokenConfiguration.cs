@@ -13,6 +13,9 @@ namespace StellarImperiums.Infrastructure.Persistence.Configurations;
 /// is a 64-character uppercase hexadecimal SHA-256 digest with a unique index used as the
 /// primary lookup path. The PostgreSQL <c>xmin</c> system column is used as the optimistic
 /// concurrency token so that two concurrent rotations of the same token cannot both commit.
+/// A coherence check constraint mirrors the reference SQL schema: an expiry must follow
+/// creation. Rotation and revocation are independent states, so a replaced token is not
+/// required to be revoked.
 /// </remarks>
 public sealed class RefreshTokenConfiguration : IEntityTypeConfiguration<RefreshToken>
 {
@@ -21,7 +24,12 @@ public sealed class RefreshTokenConfiguration : IEntityTypeConfiguration<Refresh
     /// <inheritdoc />
     public void Configure(EntityTypeBuilder<RefreshToken> builder)
     {
-        builder.ToTable("jeton_rafraichissement");
+        builder.ToTable("jeton_rafraichissement", table =>
+        {
+            table.HasCheckConstraint(
+                "ck_jeton_rafraichissement_dates_coherentes",
+                "expire_le > cree_le");
+        });
 
         builder.HasKey(t => t.Id);
         builder.Property(t => t.Id)
