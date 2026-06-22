@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using StellarImperiums.Domain.Users;
+using DomainEmail = StellarImperiums.Domain.Users.Email;
 
 namespace StellarImperiums.Infrastructure.Persistence.Configurations;
 
@@ -34,11 +35,11 @@ public sealed class UserConfiguration : IEntityTypeConfiguration<User>
 
         builder.Property(u => u.Email)
             .HasColumnName("mail")
-            .HasMaxLength(Email.MaxLength)
+            .HasMaxLength(DomainEmail.MaxLength)
             .IsRequired()
             .HasConversion(
                 email => email.Value,
-                value => Email.Create(value));
+                value => DomainEmail.Create(value));
 
         builder.Property(u => u.PasswordHash)
             .HasColumnName("mot_de_passe")

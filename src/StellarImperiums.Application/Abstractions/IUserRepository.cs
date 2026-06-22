@@ -49,6 +49,14 @@ public interface IUserRepository
     Task<User?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Finds a user by the hash of their pending password reset token.
+    /// </summary>
+    /// <param name="tokenHash">The SHA-256 hash of the reset token to look up.</param>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>The tracked user, or <c>null</c> when no user matches.</returns>
+    Task<User?> GetByPasswordResetTokenAsync(string tokenHash, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Persists pending changes to the underlying store.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>

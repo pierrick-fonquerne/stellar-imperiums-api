@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using Shouldly;
 using StellarImperiums.Domain.Users;
 using StellarImperiums.Infrastructure.Security;
+using DomainEmail = StellarImperiums.Domain.Users.Email;
 
 namespace StellarImperiums.Infrastructure.Tests.Security;
 
@@ -26,7 +27,7 @@ public class JwtTokenServiceTests
     private static User CreateUser() =>
         User.Create(
             Username.Create("Cmdr_Vega"),
-            Email.Create("vega@stellar.io"),
+            DomainEmail.Create("vega@stellar.io"),
             PasswordHash.Create(ValidHash));
 
     [Fact]

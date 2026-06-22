@@ -67,4 +67,18 @@ public sealed class JwtTokenService(IOptions<JwtOptions> options) : ITokenServic
         ArgumentException.ThrowIfNullOrEmpty(refreshTokenValue);
         return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(refreshTokenValue)));
     }
+
+    /// <inheritdoc />
+    public PasswordResetTokenMaterial GeneratePasswordResetToken()
+    {
+        var value = Base64UrlEncoder.Encode(RandomNumberGenerator.GetBytes(RefreshTokenByteLength));
+        return new PasswordResetTokenMaterial(value, HashPasswordResetToken(value));
+    }
+
+    /// <inheritdoc />
+    public string HashPasswordResetToken(string resetTokenValue)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(resetTokenValue);
+        return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(resetTokenValue)));
+    }
 }

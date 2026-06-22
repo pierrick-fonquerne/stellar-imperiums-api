@@ -57,6 +57,11 @@ public sealed class DomainExceptionMiddleware(RequestDelegate next, ILogger<Doma
             logger.LogInformation("Suspended account rejected for {Path}.", context.Request.Path);
             await WriteProblemAsync(context, StatusCodes.Status403Forbidden, "Account suspended", ex.Message, "account_suspended").ConfigureAwait(false);
         }
+        catch (InvalidPasswordResetTokenException)
+        {
+            logger.LogInformation("Password reset token rejected for {Path}.", context.Request.Path);
+            await WriteProblemAsync(context, StatusCodes.Status400BadRequest, "Invalid password reset token", "The password reset token is invalid or has expired.", "invalid_password_reset_token").ConfigureAwait(false);
+        }
         catch (DbUpdateConcurrencyException ex)
         {
             logger.LogWarning(ex, "Concurrency conflict for {Path}.", context.Request.Path);

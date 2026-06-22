@@ -35,6 +35,14 @@ public interface IRefreshTokenRepository
     Task RevokeFamilyAsync(Guid familyId, DateTimeOffset when, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Revokes all non-revoked refresh tokens belonging to the given user (no commit).
+    /// </summary>
+    /// <param name="userId">The identifier of the user whose tokens must be revoked.</param>
+    /// <param name="when">The revocation instant (UTC).</param>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    Task RevokeAllForUserAsync(int userId, DateTimeOffset when, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Persists pending changes to the underlying store.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>

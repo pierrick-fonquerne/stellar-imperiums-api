@@ -145,6 +145,49 @@ public sealed class AuthController(IMessageBus messageBus) : ControllerBase
         return NoContent();
     }
 
+    /// <summary>
+    /// Initiates a password reset flow by sending a reset token to the given email address.
+    /// </summary>
+    /// <remarks>
+    /// Always returns 202 Accepted regardless of whether the email is known, to prevent user enumeration.
+    /// </remarks>
+    /// <param name="request">The forgot-password payload.</param>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <response code="202">The request was accepted; a reset email will be sent if the account exists.</response>
+    /// <response code="400">The request payload failed validation.</response>
+    [HttpPost("forgot-password")]
+    [EnableRateLimiting("auth-login")]
+    [ProducesResponseType(StatusCodes.Status202Accepted)]
+    [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> ForgotPassword(
+        [FromBody] ForgotPasswordRequest request,
+        CancellationToken cancellationToken)
+    {
+        var command = new ForgotPasswordCommand(request.Email);
+        await messageBus.InvokeAsync(command, cancellationToken).ConfigureAwait(false);
+        return Accepted();
+    }
+
+    /// <summary>
+    /// Resets the account password using a previously issued reset token.
+    /// </summary>
+    /// <param name="request">The reset-password payload.</param>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <response code="204">The password was successfully changed.</response>
+    /// <response code="400">The request payload failed validation or the token is invalid.</response>
+    [HttpPost("reset-password")]
+    [EnableRateLimiting("auth-login")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> ResetPassword(
+        [FromBody] ResetPasswordRequest request,
+        CancellationToken cancellationToken)
+    {
+        var command = new ResetPasswordCommand(request.Token, request.NewPassword);
+        await messageBus.InvokeAsync(command, cancellationToken).ConfigureAwait(false);
+        return NoContent();
+    }
+
     private void SetRefreshTokenCookie(string value, DateTimeOffset expiresAt) =>
         Response.Cookies.Append(RefreshTokenCookieName, value, BuildRefreshTokenCookieOptions(expiresAt));
 
