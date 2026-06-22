@@ -155,4 +155,44 @@ public class UserTests
         Should.Throw<InvalidPasswordResetException>(() =>
             user.StartPasswordReset("token", DateTimeOffset.UtcNow.AddMinutes(-1)));
     }
+
+    [Fact]
+    public void CompletePasswordReset_WithValidNonExpiredToken_ChangesPasswordAndClearsToken()
+    {
+        var user = CreateStandardUser();
+        var baseTime = DateTimeOffset.UtcNow;
+        user.StartPasswordReset("token-hash", baseTime.AddHours(1));
+        var newHash = PasswordHash.Create(ValidHash.Replace("EjBGRNLgHES", "ZzZzZzZzZzZ"));
+
+        user.CompletePasswordReset(newHash, baseTime.AddMinutes(30));
+
+        user.PasswordHash.ShouldBe(newHash);
+        user.PasswordResetToken.ShouldBeNull();
+        user.PasswordResetTokenExpiresAt.ShouldBeNull();
+    }
+
+    [Fact]
+    public void CompletePasswordReset_WithExpiredToken_ThrowsInvalidPasswordReset()
+    {
+        var user = CreateStandardUser();
+        var baseTime = DateTimeOffset.UtcNow;
+        var originalHash = user.PasswordHash;
+        user.StartPasswordReset("token-hash", baseTime.AddHours(1));
+        var newHash = PasswordHash.Create(ValidHash.Replace("EjBGRNLgHES", "ZzZzZzZzZzZ"));
+
+        Should.Throw<InvalidPasswordResetException>(() =>
+            user.CompletePasswordReset(newHash, baseTime.AddHours(2)));
+
+        user.PasswordHash.ShouldBe(originalHash);
+    }
+
+    [Fact]
+    public void CompletePasswordReset_WithNoActiveToken_ThrowsInvalidPasswordReset()
+    {
+        var user = CreateStandardUser();
+        var newHash = PasswordHash.Create(ValidHash.Replace("EjBGRNLgHES", "ZzZzZzZzZzZ"));
+
+        Should.Throw<InvalidPasswordResetException>(() =>
+            user.CompletePasswordReset(newHash, DateTimeOffset.UtcNow));
+    }
 }

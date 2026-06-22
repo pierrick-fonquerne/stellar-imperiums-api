@@ -26,6 +26,19 @@ public interface ITokenService
     /// <param name="refreshTokenValue">The opaque refresh token value.</param>
     /// <returns>The SHA-256 hash in uppercase hexadecimal.</returns>
     string HashRefreshToken(string refreshTokenValue);
+
+    /// <summary>
+    /// Generates a new cryptographically random password reset token.
+    /// </summary>
+    /// <returns>The plaintext value to include in the email and its persistence hash.</returns>
+    PasswordResetTokenMaterial GeneratePasswordResetToken();
+
+    /// <summary>
+    /// Computes the persistence hash of a plaintext password reset token value.
+    /// </summary>
+    /// <param name="resetTokenValue">The plaintext reset token value.</param>
+    /// <returns>The SHA-256 hash in uppercase hexadecimal.</returns>
+    string HashPasswordResetToken(string resetTokenValue);
 }
 
 /// <summary>
@@ -42,3 +55,10 @@ public sealed record AccessTokenResult(string Token, int ExpiresInSeconds);
 /// <param name="Hash">The SHA-256 hash persisted in place of the value.</param>
 /// <param name="ExpiresAt">The expiry timestamp (UTC).</param>
 public sealed record RefreshTokenMaterial(string Value, string Hash, DateTimeOffset ExpiresAt);
+
+/// <summary>
+/// Material produced when generating a password reset token.
+/// </summary>
+/// <param name="Value">The plaintext value included in the reset email (never persisted).</param>
+/// <param name="Hash">The SHA-256 hash stored in the user record.</param>
+public sealed record PasswordResetTokenMaterial(string Value, string Hash);

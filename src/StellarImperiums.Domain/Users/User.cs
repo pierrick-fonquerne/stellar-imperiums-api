@@ -178,4 +178,22 @@ public sealed class User : Entity
         PasswordResetToken = token;
         PasswordResetTokenExpiresAt = expiresAt;
     }
+
+    /// <summary>
+    /// Applies the new password after verifying that an active, non-expired reset token exists.
+    /// </summary>
+    /// <param name="newHash">The new password hash to apply.</param>
+    /// <param name="now">The current timestamp used to evaluate token expiry (UTC).</param>
+    /// <exception cref="InvalidPasswordResetException">
+    /// Thrown when no active reset token is present or the token has expired.
+    /// </exception>
+    public void CompletePasswordReset(PasswordHash newHash, DateTimeOffset now)
+    {
+        if (PasswordResetToken is null || PasswordResetTokenExpiresAt is null || PasswordResetTokenExpiresAt <= now)
+        {
+            throw new InvalidPasswordResetException("No active or valid password reset token found.");
+        }
+
+        ChangePassword(newHash);
+    }
 }

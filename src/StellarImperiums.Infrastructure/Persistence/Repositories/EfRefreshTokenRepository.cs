@@ -43,6 +43,20 @@ public sealed class EfRefreshTokenRepository(StellarDbContext dbContext) : IRefr
     }
 
     /// <inheritdoc />
+    public async Task RevokeAllForUserAsync(int userId, DateTimeOffset when, CancellationToken cancellationToken = default)
+    {
+        var tokens = await dbContext.RefreshTokens
+            .Where(t => t.UserId == userId && t.RevokedAt == null)
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
+
+        foreach (var token in tokens)
+        {
+            token.Revoke(when);
+        }
+    }
+
+    /// <inheritdoc />
     public Task SaveChangesAsync(CancellationToken cancellationToken = default) =>
         dbContext.SaveChangesAsync(cancellationToken);
 }

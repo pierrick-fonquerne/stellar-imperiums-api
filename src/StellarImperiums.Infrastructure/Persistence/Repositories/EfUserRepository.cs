@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using StellarImperiums.Application.Abstractions;
 using StellarImperiums.Domain.Users;
+using DomainEmail = StellarImperiums.Domain.Users.Email;
 
 namespace StellarImperiums.Infrastructure.Persistence.Repositories;
 
@@ -29,7 +30,7 @@ public sealed class EfUserRepository(StellarDbContext dbContext) : IUserReposito
     }
 
     /// <inheritdoc />
-    public Task<bool> EmailExistsAsync(Email email, CancellationToken cancellationToken = default)
+    public Task<bool> EmailExistsAsync(DomainEmail email, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(email);
         return dbContext.Users
@@ -38,7 +39,7 @@ public sealed class EfUserRepository(StellarDbContext dbContext) : IUserReposito
     }
 
     /// <inheritdoc />
-    public Task<User?> GetByEmailAsync(Email email, CancellationToken cancellationToken = default)
+    public Task<User?> GetByEmailAsync(DomainEmail email, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(email);
         return dbContext.Users
@@ -48,6 +49,14 @@ public sealed class EfUserRepository(StellarDbContext dbContext) : IUserReposito
     /// <inheritdoc />
     public Task<User?> GetByIdAsync(int id, CancellationToken cancellationToken = default) =>
         dbContext.Users.FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
+
+    /// <inheritdoc />
+    public Task<User?> GetByPasswordResetTokenAsync(string tokenHash, CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(tokenHash);
+        return dbContext.Users
+            .FirstOrDefaultAsync(u => u.PasswordResetToken == tokenHash, cancellationToken);
+    }
 
     /// <inheritdoc />
     public Task SaveChangesAsync(CancellationToken cancellationToken = default) =>

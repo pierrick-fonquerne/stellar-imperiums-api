@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using StellarImperiums.Application.Abstractions;
+using StellarImperiums.Infrastructure.Email;
 using StellarImperiums.Infrastructure.Persistence;
 using StellarImperiums.Infrastructure.Persistence.Repositories;
 using StellarImperiums.Infrastructure.Security;
@@ -35,6 +36,7 @@ public static class DependencyInjection
 
         services.AddScoped<IUserRepository, EfUserRepository>();
         services.AddScoped<IRefreshTokenRepository, EfRefreshTokenRepository>();
+        services.AddScoped<IEmailSender, LoggingEmailSender>();
         services.AddSingleton<IPasswordHasher, Argon2idPasswordHasher>();
 
         services.AddOptions<JwtOptions>()
